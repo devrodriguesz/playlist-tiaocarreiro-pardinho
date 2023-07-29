@@ -1,10 +1,43 @@
 .main {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   padding: 15px;
   min-height: 100vh;
   background-image: url('../public/background.png');
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
+}
+
+.container {
+  width: 80vw;
+  background-color: rgba(255, 255, 255, 0.75);
+  margin-top: 10px;
+  padding: 20px;
+}
+
+.menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 60px;
+}
+
+.containerItem{
+  display: flex;
+  flex-direction: column;
+}
+
+.playlistHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.playlistTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
