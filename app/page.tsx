@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 
 import styles from './page.module.css'
 import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
@@ -12,14 +14,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 
 import Header from './components/Header/page'
-import getAlbum from './services/api';
+import { getAlbum, createAlbum, deleteAlbum, createTrack, deleteTrack } from './services/api';
 
-interface Item {
-  name: string;
-  year: number;
-  id: number;
-  tracks: Track[];
-}
 
 interface Track {
   id: number;
@@ -28,39 +24,92 @@ interface Track {
   duration: number;
 }
 
+type Playlist = {
+  tracks: Track[];
+  id: number,
+  name: string,
+  year: number,
+}
+
 export default function Home() {
   const [inputValue, setInputValue] = useState('');
-  const [dataPlaylist, setDataPlaylist] = useState([])
+  const [dataPlaylist, setDataPlaylist] = useState<Playlist[]>([]);
 
-  useEffect(() => {
-    async function fetchAlbum() {
-      const response = await getAlbum('album');
-      setDataPlaylist(response.data);
-    }
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [playlistName, setPlaylistName] = useState('');
+  const [playlistYear, setPlaylistYear] = useState('');
 
-    fetchAlbum();
-  }, []);
+  const [isAddTrackModalOpen, setIsAddTrackModalOpen] = useState(false);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState(0);
+  const [trackNumber, setTrackNumber] = useState(0);
+  const [trackTitle, setTrackTitle] = useState('');
+  const [trackDuration, setTrackDuration] = useState(0);
 
   const handleInputChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setInputValue(event.target.value);
   };
 
-  const deleteTrack = () => {
-    console.log('Musica deletada')
-  }
+  const createPlaylist = async () => {
+    try {
+      await createAlbum(playlistName, playlistYear);
+      // if (newPlaylist) {
+      //   const response = await getAlbum('album');
+      //   if (response && response.data) {
+      //     setDataPlaylist(response.data);
+      //     closeModal();
+      //   } else {
+      //     throw new Error('Falha ao obter a lista de álbuns');
+      //   }
+      // } else {
+      //   throw new Error('Falha ao criar a playlist');
+      // }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-  const addTrack = () => {
-    console.log('Musica adicionada')
-  }
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
 
-  const createPlaylist = () => {
-    console.log('Playlist criada com sucesso')
-  }
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
-  const deletePlaylist = () => {
-    console.log('Playlist deletada')
-  }
+  const deletePlaylist = async (id: number) => {
+    try {
+      await deleteAlbum(id);
+      // const response = await getAlbum('album');
+      // if (response && response.data) {
+      //   setDataPlaylist(response.data);
+      // } else {
+      //   throw new Error('Falha ao obter a lista de álbuns');
+      // }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  const addTrack = (playlistId: number) => {
+    setSelectedPlaylistId(playlistId);
+    openAddTrackModal();
+  };
+
+  const openAddTrackModal = () => {
+    setIsAddTrackModalOpen(true);
+  };
+
+  const closeAddTrackModal = () => {
+    setIsAddTrackModalOpen(false);
+  };
+
+  const handleDeleteTrack = async (id: number) => {
+    try {
+      await deleteTrack(id);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const columns: GridColDef[] = [
     { field: 'number', headerName: 'Nº', width: 70, disableColumnMenu: true },
     { field: 'title', headerName: 'Faixa', width: 150, disableColumnMenu: true },
@@ -69,38 +118,23 @@ export default function Home() {
     {
       field: 'action', headerName: 'Ação', width: 130, disableColumnMenu: true, sortable: false,
       renderCell: (params) => (
-        <IconButton aria-label="delete track" color='error' onClick={() => deleteTrack()}>
+        <IconButton aria-label="delete track" color='error' onClick={() => handleDeleteTrack(params.row.id)}>
           <DeleteForeverOutlinedIcon />
         </IconButton>
       ),
     },
   ];
 
-  const rows = [
-    { id: 1, number: 1, title: 'Minas Gerais', duration: '03:26' },
-    { id: 2, number: 2, title: 'A Gerais', duration: '99:99' },
-    { id: 3, number: 3, title: 'Minas Gerais', duration: '03:26' },
-    { id: 4, number: 4, title: 'A Gerais', duration: '99:99' },
-    { id: 5, number: 5, title: 'Minas Gerais', duration: '03:26' },
-    { id: 6, number: 6, title: 'A Gerais', duration: '99:99' },
-    { id: 7, number: 7, title: 'Minas Gerais', duration: '03:26' },
-    { id: 8, number: 8, title: 'A Gerais', duration: '99:99' },
-    { id: 9, number: 9, title: 'Minas Gerais', duration: '03:26' },
-    { id: 10, number: 10, title: 'A Gerais', duration: '99:99' },
-    { id: 11, number: 11, title: 'Minas Gerais', duration: '03:26' },
-    { id: 12, number: 12, title: 'A Gerais', duration: '99:99' },
-    { id: 13, number: 13, title: 'Minas Gerais', duration: '03:26' },
-    { id: 14, number: 14, title: 'A Gerais', duration: '99:99' },
-    { id: 15, number: 15, title: 'Minas Gerais', duration: '03:26' },
-    { id: 16, number: 16, title: 'A Gerais', duration: '99:99' },
-    { id: 17, number: 17, title: 'Minas Gerais', duration: '03:26' },
-    { id: 18, number: 18, title: 'A Gerais', duration: '99:99' },
-    { id: 19, number: 19, title: 'Minas Gerais', duration: '03:26' },
-    { id: 20, number: 20, title: 'A Gerais', duration: '99:99' },
-    { id: 21, number: 21, title: 'Minas Gerais', duration: '03:26' },
-    { id: 22, number: 22, title: 'A Gerais', duration: '99:99' },
-  ];
+  useEffect(() => {
+    async function fetchAlbum() {
+      const response = await getAlbum('album');
+      if (response && response.data) {
+        setDataPlaylist(response.data);
+      }
+    }
 
+    fetchAlbum();
+  }, []);
 
   return (
     <main className={styles.main}>
@@ -111,7 +145,7 @@ export default function Home() {
             variant="contained"
             size="large"
             endIcon={<AddCircleIcon />}
-            onClick={createPlaylist}
+            onClick={openModal}
           >
             Criar Playlist
           </Button>
@@ -147,18 +181,18 @@ export default function Home() {
         </div>
 
         <div>
-          {dataPlaylist.map((item: Item) => (
-            <div key={item.id} className={styles.containerItem}>
+          {dataPlaylist.map((playlist: Playlist) => (
+            <div key={playlist.id} className={styles.containerplaylist}>
               <div className={styles.playlistHeader}>
                 <div className={styles.playlistTitle}>
-                  <h2>{item.name}, {item.year}</h2>
+                  <h2>{playlist.name}, {playlist.year}</h2>
                   <Button
                     variant="outlined"
                     startIcon={<AddCircleIcon />}
                     sx={{
                       fontWeight: 700,
                     }}
-                    onClick={addTrack}
+                    onClick={() => addTrack(playlist.id)}
                   >
                     Adicionar Música</Button>
                 </div>
@@ -169,12 +203,12 @@ export default function Home() {
                   sx={{
                     fontWeight: 700,
                   }}
-                  onClick={deletePlaylist}
+                  onClick={() => deletePlaylist(playlist.id)}
                 >
                   Deletar Playlist</Button>
               </div>
               <DataGrid
-                rows={item.tracks.map((track: Track) => {
+                rows={playlist.tracks.map((track: Track) => {
                   const minutes = Math.floor(track.duration / 60);
                   const seconds = track.duration % 60;
                   const formattedDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -194,6 +228,103 @@ export default function Home() {
         </div>
 
       </div>
+
+      <Modal
+        open={isModalOpen}
+        onClose={closeModal}
+        aria-labelledby="modal-title"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            border: '2px solid #000',
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <h2 id="modal-title">Criar Playlist</h2>
+          <form onSubmit={createPlaylist}>
+            <TextField
+              label="Nome da Playlist"
+              fullWidth
+              required
+              value={playlistName}
+              sx={{ mt: 2 }}
+              onChange={(e) => setPlaylistName(e.target.value)}
+            />
+            <TextField
+              label="Ano"
+              fullWidth
+              required
+              type="number"
+              value={playlistYear}
+              sx={{ mt: 2 }}
+              onChange={(e) => setPlaylistYear(e.target.value)}
+            />
+            <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+              Enviar
+            </Button>
+          </form>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={isAddTrackModalOpen}
+        onClose={closeAddTrackModal}
+        aria-labelledby="add-track-modal-title"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            border: '2px solid #000',
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <h2 id="add-track-modal-title">Adicionar Música</h2>
+          <form onSubmit={() => createTrack(selectedPlaylistId, trackNumber, trackTitle, trackDuration)}>
+            <TextField
+              label="Número"
+              fullWidth
+              required
+              type="number"
+              value={trackNumber}
+              sx={{ mt: 2 }}
+              onChange={(e) => setTrackNumber(Number(e.target.value))}
+            />
+            <TextField
+              label="Título"
+              fullWidth
+              required
+              value={trackTitle}
+              sx={{ mt: 2 }}
+              onChange={(e) => setTrackTitle(e.target.value)}
+            />
+            <TextField
+              label="Duração"
+              fullWidth
+              required
+              type="number"
+              value={trackDuration}
+              sx={{ mt: 2 }}
+              onChange={(e) => setTrackDuration(Number(e.target.value))}
+            />
+            <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+              Enviar
+            </Button>
+          </form>
+        </Box>
+      </Modal>
     </main>
   )
 }
