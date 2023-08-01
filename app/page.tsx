@@ -121,7 +121,7 @@ export default function Home() {
 
   const columns: GridColDef[] = [
     { field: 'number', headerName: 'Nº', width: 70, disableColumnMenu: true },
-    { field: 'title', headerName: 'Faixa', width: 150, disableColumnMenu: true },
+    { field: 'title', headerName: 'Faixa', width: 180, disableColumnMenu: true },
     { field: 'duration', headerName: 'Duração', width: 130, disableColumnMenu: true, sortable: false },
     {
       field: 'action', headerName: 'Ação', width: 130, disableColumnMenu: true, sortable: false,
