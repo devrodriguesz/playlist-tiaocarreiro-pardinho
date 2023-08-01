@@ -1,6 +1,7 @@
 # Gerenciador de Playlist
 
 Este site tem como finalidade gerenciar playlists da dupla sertaneja Tião Carreiro & Pardinho  
+[Gerenciador de Playlist](https://playlist-tiaocarreiro-pardinho.vercel.app/)
 
 <img src= "https://github.com/devrodriguesz/playlist-tiaocarreiro-pardinho/assets/110337546/03d55c68-a745-4ef3-8110-0aacf03ce9b9" width="700" height="490">
 
