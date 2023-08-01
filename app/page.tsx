@@ -17,23 +17,11 @@ import Header from './components/Header/page'
 import { getAlbum, createAlbum, deleteAlbum, createTrack, deleteTrack } from './services/api';
 
 
-interface Track {
-  id: number;
-  number: number;
-  title: string;
-  duration: number;
-}
 
-type Playlist = {
-  tracks: Track[];
-  id: number,
-  name: string,
-  year: number,
-}
 
 export default function Home() {
   const [inputValue, setInputValue] = useState('');
-  const [dataPlaylist, setDataPlaylist] = useState<Playlist[]>([]);
+  const [dataPlaylist, setDataPlaylist] = useState<Album[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [playlistName, setPlaylistName] = useState('');
@@ -44,25 +32,43 @@ export default function Home() {
   const [trackNumber, setTrackNumber] = useState(0);
   const [trackTitle, setTrackTitle] = useState('');
   const [trackDuration, setTrackDuration] = useState(0);
+  const [filteredPlaylists, setFilteredPlaylists] = useState<Album[]>([]);
 
   const handleInputChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
-    setInputValue(event.target.value);
+    const searchValue = event.target.value;
+    setInputValue(searchValue);
   };
+
+  const handleSearch = () => {
+    const filtered = dataPlaylist.filter(item =>
+      item.name.toLowerCase().includes(inputValue.toLowerCase())
+    );
+  
+    setFilteredPlaylists(filtered);
+    console.log(filtered)
+  };
+
+    const fetchAlbumData = async () => {
+    try {
+      const response = await getAlbum('album');
+      if (response && response.data) {
+        setDataPlaylist(response.data);
+        setFilteredPlaylists(response.data);
+        
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAlbumData();
+  }, []);
+
 
   const createPlaylist = async () => {
     try {
       await createAlbum(playlistName, playlistYear);
-      // if (newPlaylist) {
-      //   const response = await getAlbum('album');
-      //   if (response && response.data) {
-      //     setDataPlaylist(response.data);
-      //     closeModal();
-      //   } else {
-      //     throw new Error('Falha ao obter a lista de álbuns');
-      //   }
-      // } else {
-      //   throw new Error('Falha ao criar a playlist');
-      // }
     } catch (error) {
       console.error(error);
     }
@@ -77,16 +83,15 @@ export default function Home() {
   };
 
   const deletePlaylist = async (id: number) => {
-    try {
-      await deleteAlbum(id);
-      // const response = await getAlbum('album');
-      // if (response && response.data) {
-      //   setDataPlaylist(response.data);
-      // } else {
-      //   throw new Error('Falha ao obter a lista de álbuns');
-      // }
-    } catch (error) {
-      console.error(error);
+
+    if (window.confirm(`Tem certeza que deseja excluir`)) {
+
+      try {
+        await deleteAlbum(id);  
+        fetchAlbumData();
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
@@ -104,17 +109,21 @@ export default function Home() {
   };
 
   const handleDeleteTrack = async (id: number) => {
-    try {
-      await deleteTrack(id);
-    } catch (error) {
-      console.error(error);
+
+    if (window.confirm(`Tem certeza que deseja excluir`)) {
+      try {
+        await deleteTrack(id);
+        fetchAlbumData();
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
+
   const columns: GridColDef[] = [
     { field: 'number', headerName: 'Nº', width: 70, disableColumnMenu: true },
     { field: 'title', headerName: 'Faixa', width: 150, disableColumnMenu: true },
     { field: 'duration', headerName: 'Duração', width: 130, disableColumnMenu: true, sortable: false },
-    { field: 'spacer', headerName: '', width: 600, disableColumnMenu: true, sortable: false },
     {
       field: 'action', headerName: 'Ação', width: 130, disableColumnMenu: true, sortable: false,
       renderCell: (params) => (
@@ -135,6 +144,13 @@ export default function Home() {
 
     fetchAlbum();
   }, []);
+
+  const newTrackData = {
+    albumId: selectedPlaylistId,
+    number: trackNumber,
+    title: trackTitle,
+    duration: trackDuration,
+  };
 
   return (
     <main className={styles.main}>
@@ -172,7 +188,7 @@ export default function Home() {
             }}
             InputProps={{
               endAdornment: (
-                <IconButton aria-label="pesquisar" onClick={() => console.log(inputValue)} edge="end">
+                <IconButton aria-label="pesquisar" onClick={handleSearch} edge="end">
                   <SearchOutlinedIcon />
                 </IconButton>
               ),
@@ -181,7 +197,7 @@ export default function Home() {
         </div>
 
         <div>
-          {dataPlaylist.map((playlist: Playlist) => (
+          {filteredPlaylists.map((playlist: Album) => (
             <div key={playlist.id} className={styles.containerplaylist}>
               <div className={styles.playlistHeader}>
                 <div className={styles.playlistTitle}>
@@ -292,7 +308,7 @@ export default function Home() {
           }}
         >
           <h2 id="add-track-modal-title">Adicionar Música</h2>
-          <form onSubmit={() => createTrack(selectedPlaylistId, trackNumber, trackTitle, trackDuration)}>
+          <form onSubmit={() => createTrack(newTrackData)}>
             <TextField
               label="Número"
               fullWidth

@@ -41,3 +41,13 @@
   align-items: center;
   gap: 10px;
 }
+
+@media (max-width: 860px) {
+  .container {
+    width: 100vw;
+  }
+  
+  .playlistHeader {
+    flex-wrap: wrap;
+  }
+}
