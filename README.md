@@ -21,7 +21,7 @@ Antes de começar, você precisa ter [Git](https://git-scm.com), [Node](https://
 
 ```bash 
  # Clone this project
- git clone https://github.com/devrodriguesz/financas.git
+ git clone https://github.com/devrodriguesz/playlist-tiaocarreiro-pardinho.git
     
  # Install dependencies
  npm install
