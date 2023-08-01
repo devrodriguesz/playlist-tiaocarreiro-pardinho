@@ -45,7 +45,6 @@ export default function Home() {
     );
   
     setFilteredPlaylists(filtered);
-    console.log(filtered)
   };
 
     const fetchAlbumData = async () => {
