@@ -30,6 +30,7 @@ Antes de começar, você precisa ter [Git](https://git-scm.com), [Node](https://
  npm run dev
  
 ``` 
+Ou acesse o site através do link: [https://playlist-tiaocarreiro-pardinho.vercel.app/](https://playlist-tiaocarreiro-pardinho.vercel.app/)
 
 ## Licença
 
